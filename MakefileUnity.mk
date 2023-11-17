@@ -20,7 +20,7 @@ UNITY_WARNINGFLAGS += -Werror
 UNITY_WARNINGFLAGS += -Wswitch-default
 
 INCLUDE_DIRS = \
-	-I$(PROJECT_HOME_DIR)/include/led_driver\
+	-I$(PROJECT_HOME_DIR)/include\
 	-I$(UNITY_HOME)/src\
 	-I$(UNITY_HOME)/extras/fixture/src\
 	-I$(UNITY_HOME)/extras/memory/src\
