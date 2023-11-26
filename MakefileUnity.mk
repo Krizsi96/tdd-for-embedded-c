@@ -1,7 +1,7 @@
 #This makefile makes the examples from the first few chapters with Unity test harness
 
 #Set this to @ to keep the makefile quiet
-SILENCE = 
+SILENCE = @
 
 #---- Outputs ----#
 COMPONENT_NAME = BookCode_Unity
@@ -24,6 +24,17 @@ INCLUDE_DIRS = \
 	-I$(UNITY_HOME)/src\
 	-I$(UNITY_HOME)/extras/fixture/src\
 	-I$(UNITY_HOME)/extras/memory/src\
+	-I$(PROJECT_TEST_DIR)/mocks
+
+BINARIES = \
+	unity\
+	unity_fixture\
+	unity_memory\
+	all_tests\
+	led_driver\
+	led_driver_test\
+	led_driver_test_runner\
+	runtime_error_stub\
 
 all: $(BUILD_DIR) $(BUILD_DIR)/$(COMPONENT_NAME)
 
@@ -33,7 +44,7 @@ clean:
 $(BUILD_DIR):
 	$(SILENCE)mkdir $@
 
-$(BUILD_DIR)/$(COMPONENT_NAME): $(BUILD_DIR)/unity.o $(BUILD_DIR)/unity_fixture.o $(BUILD_DIR)/unity_memory.o $(BUILD_DIR)/all_tests.o $(BUILD_DIR)/led_driver.o $(BUILD_DIR)/led_driver_test.o $(BUILD_DIR)/led_driver_test_runner.o
+$(BUILD_DIR)/$(COMPONENT_NAME): $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(BINARIES)))
 	$(SILENCE)$(CC) $(UNITY_CFLAGS) $(UNITY_WARNINGFLAGS) -o $@ $^
 
 $(BUILD_DIR)/unity.o: $(UNITY_HOME)/src/unity.c
@@ -55,4 +66,7 @@ $(BUILD_DIR)/led_driver_test.o: $(PROJECT_TEST_DIR)/led_driver/led_driver_test.c
 	$(SILENCE)$(CC) $(UNITY_CFLAGS) $(UNITY_WARNINGFLAGS) $(INCLUDE_DIRS) -c -o $@ $^
 
 $(BUILD_DIR)/led_driver_test_runner.o: $(PROJECT_TEST_DIR)/led_driver/led_driver_test_runner.c
+	$(SILENCE)$(CC) $(UNITY_CFLAGS) $(UNITY_WARNINGFLAGS) $(INCLUDE_DIRS) -c -o $@ $^
+
+$(BUILD_DIR)/runtime_error_stub.o: $(PROJECT_TEST_DIR)/mocks/runtime_error_stub.c
 	$(SILENCE)$(CC) $(UNITY_CFLAGS) $(UNITY_WARNINGFLAGS) $(INCLUDE_DIRS) -c -o $@ $^
