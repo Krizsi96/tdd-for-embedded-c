@@ -14,7 +14,7 @@ PROJECT_HOME_DIR = .
 PROJECT_TEST_DIR = test
 
 
-UNITY_CFLAGS += -Wno-missing-prototypes
+#UNITY_CFLAGS += -Wno-missing-prototypes
 UNITY_WARNINGFLAGS += -Wall
 UNITY_WARNINGFLAGS += -Werror
 UNITY_WARNINGFLAGS += -Wswitch-default
