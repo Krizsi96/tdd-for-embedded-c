@@ -7,32 +7,28 @@ source_files = ['src/LightScheduler.c']
 
 cpputest = dependency('cpputest')
 
-source_files_fake_time_service_test =   ['test/TestRunner.cpp', 
-                                        'test/FakeTimeServiceTest.cpp',
-                                        'test/FakeTimeService.c',
-                                        'src/LightScheduler.c']
+source_files = ['src/LightScheduler.c']
+test_source_files =   ['test/TestRunner.cpp', 
+                        'test/FakeTimeServiceTest.cpp',
+                        'test/FakeTimeService.c',
+                        'test/LightControllerSpy.c',
+                        'test/LightControllerSpyTest.cpp',
+                        'test/LightSchedulerTest.cpp']
+
 fake_time_service_test = executable('fake_time_service_test', 
                                     include_directories: include_dir, 
-                                    sources: source_files_fake_time_service_test, 
+                                    sources: [source_files, test_source_files], 
                                     dependencies: cpputest)
 test('fake_time_service_test', fake_time_service_test)
 
-source_files_light_controller_spy_test =    ['test/TestRunner.cpp', 
-                                            'test/LightControllerSpyTest.cpp',
-                                            'test/LightControllerSpy.c']
 light_controller_spy_test = executable('light_controller_spy_test', 
                                         include_directories: include_dir, 
-                                        sources: source_files_light_controller_spy_test, 
+                                        sources: [source_files, test_source_files], 
                                         dependencies: cpputest)
 test('light_controller_spy_test', light_controller_spy_test)
 
-source_files_light_scheduler_test = ['test/TestRunner.cpp', 
-                                    'test/LightSchedulerTest.cpp',
-                                    'src/LightScheduler.c',
-                                    'test/LightControllerSpy.c',
-                                    'test/FakeTimeService.c']
 light_scheduler_test = executable('light_scheduler_test', 
                                     include_directories: include_dir, 
-                                    sources: source_files_light_scheduler_test, 
+                                    sources: [source_files, test_source_files], 
                                     dependencies: cpputest)
 test('light_scheduler_test', light_scheduler_test)
