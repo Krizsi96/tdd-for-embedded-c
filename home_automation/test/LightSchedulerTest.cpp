@@ -7,6 +7,9 @@ extern "C"
 #include "FakeTimeService.h"
 }
 
+void setTimeTo(int day, int minuteOfDay);
+void checkLightState(int id, int level);
+
 // clang-format off
 TEST_GROUP(LightScheduler)
 {
@@ -36,41 +39,45 @@ TEST_GROUP(LightScheduler)
 
 TEST(LightScheduler, NoChangeToLightsDuringInitialization)
 {
-    LONGS_EQUAL(LIGHT_ID_UNKNOWN, LightControllerSpy_GetLastId());
-    LONGS_EQUAL(LIGHT_STATE_UNKNOWN, LightControllerSpy_GetLastState());
+    LightScheduler_Create();
+    checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
 }
 
 TEST(LightScheduler, NoScheduleNothingHappens)
 {
-    FakeTimeService_SetDay(MONDAY);
-    FakeTimeService_SetMinute(100);
+    setTimeTo(MONDAY, 100);
+
     LightScheduler_WakeUp();
-    LONGS_EQUAL(LIGHT_ID_UNKNOWN, LightControllerSpy_GetLastId());
-    LONGS_EQUAL(LIGHT_STATE_UNKNOWN, LightControllerSpy_GetLastState());
+
+    checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
 }
 
 TEST(LightScheduler, ScheduleONEverydayItsTime)
 {
     LightScheduler_ScheduleTurnOn(3, EVERYDAY, 1200);
-    FakeTimeService_SetDay(MONDAY);
-    FakeTimeService_SetMinute(1200);
+    setTimeTo(MONDAY, 1200);
 
     LightScheduler_WakeUp();
 
-    LONGS_EQUAL(3, LightControllerSpy_GetLastId());
-    LONGS_EQUAL(LIGHT_ON, LightControllerSpy_GetLastState());
+    checkLightState(3, LIGHT_ON);
 }
 
 TEST(LightScheduler, ScheduleOffEverydayItsTime)
 {
     LightScheduler_ScheduleTurnOff(3, EVERYDAY, 1200);
-    FakeTimeService_SetDay(MONDAY);
-    FakeTimeService_SetMinute(1200);
+    setTimeTo(MONDAY, 1200);
 
     LightScheduler_WakeUp();
 
-    LONGS_EQUAL(3, LightControllerSpy_GetLastId());
-    LONGS_EQUAL(LIGHT_OFF, LightControllerSpy_GetLastState());
+    checkLightState(3, LIGHT_OFF);
+}
+
+TEST(LightScheduler, ScheduleTuesdayButItsMonday)
+{
+    LightScheduler_ScheduleTurnOn(3, TUESDAY, 1200);
+    setTimeTo(MONDAY, 1200);
+    LightScheduler_WakeUp();
+    checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
 }
 
 // Lights are not change at initialization
@@ -90,3 +97,15 @@ TEST(LightScheduler, ScheduleOffEverydayItsTime)
 // Remove non scheduled light schedule
 // Schedule the maximum supported number of events (128)
 // Schedule too many events
+
+void setTimeTo(int day, int minuteOfDay)
+{
+    FakeTimeService_SetDay(day);
+    FakeTimeService_SetMinute(minuteOfDay);
+}
+
+void checkLightState(int id, int level)
+{
+    LONGS_EQUAL(id, LightControllerSpy_GetLastId());
+    LONGS_EQUAL(level, LightControllerSpy_GetLastState());
+}

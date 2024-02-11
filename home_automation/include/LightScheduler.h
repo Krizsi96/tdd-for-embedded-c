@@ -3,7 +3,7 @@
 
 #include "TimeService.h"
 
-typedef enum
+enum Day
 {
     NONE = -1,
     EVERYDAY = 10,
@@ -16,12 +16,14 @@ typedef enum
     THURSDAY,
     FRIDAY,
     SATURDAY
-} Day;
+};
+
+typedef enum Day Day;
 
 void LightScheduler_Create(void);
 void LightScheduler_Destroy(void);
-void LightScheduler_ScheduleTurnOn(int, Day, int);
-void LightScheduler_ScheduleTurnOff(int, Day, int);
+void LightScheduler_ScheduleTurnOn(int id, Day day, int minuteOfDay);
+void LightScheduler_ScheduleTurnOff(int id, Day day, int minuteOfDay);
 void LightScheduler_WakeUp(void);
 
 #endif // LIGHT_SCHEDULER_H_

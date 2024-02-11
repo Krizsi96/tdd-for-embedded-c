@@ -21,6 +21,9 @@ enum
 };
 
 static ScheduledLightEvent scheduledEvent;
+static void scheduleEvent(int id, Day day, int minuteOfDay, int event);
+static void processEventDueNow(Time *time, ScheduledLightEvent *lightEvent);
+static void operateLight(ScheduledLightEvent *lightEvent);
 
 void LightScheduler_Create(void)
 {
@@ -31,32 +34,46 @@ void LightScheduler_Destroy(void)
 {
 }
 
-void LightScheduler_ScheduleTurnOn(int id, Day day, int minuteOfDay)
-{
-    scheduledEvent.id = id;
-    scheduledEvent.minuteOfDay = minuteOfDay;
-    scheduledEvent.event = TURN_ON;
-}
-
-void LightScheduler_ScheduleTurnOff(int id, Day day, int minuteOfDay)
-{
-    scheduledEvent.id = id;
-    scheduledEvent.minuteOfDay = minuteOfDay;
-    scheduledEvent.event = TURN_OFF;
-}
-
 void LightScheduler_WakeUp(void)
 {
     Time time;
     TimeService_GetTime(&time);
 
-    if (scheduledEvent.id == UNUSED)
-        return;
-    if (time.minuteOfDay != scheduledEvent.minuteOfDay)
+    processEventDueNow(&time, &scheduledEvent);
+}
+
+static void processEventDueNow(Time *time, ScheduledLightEvent *lightEvent)
+{
+    if (lightEvent->id == UNUSED)
         return;
 
-    if (scheduledEvent.event == TURN_ON)
-        LightController_On(scheduledEvent.id);
-    else if (scheduledEvent.event == TURN_OFF)
-        LightController_Off(scheduledEvent.id);
+    if (lightEvent->minuteOfDay != time->minuteOfDay)
+        return;
+
+    operateLight(lightEvent);
+}
+
+static void operateLight(ScheduledLightEvent *lightEvent)
+{
+    if (lightEvent->event == TURN_ON)
+        LightController_On(lightEvent->id);
+    else if (lightEvent->event == TURN_OFF)
+        LightController_Off(lightEvent->id);
+}
+
+void LightScheduler_ScheduleTurnOn(int id, Day day, int minuteOfDay)
+{
+    scheduleEvent(id, day, minuteOfDay, TURN_ON);
+}
+
+void LightScheduler_ScheduleTurnOff(int id, Day day, int minuteOfDay)
+{
+    scheduleEvent(id, day, minuteOfDay, TURN_OFF);
+}
+
+static void scheduleEvent(int id, Day day, int minuteOfDay, int event)
+{
+    scheduledEvent.minuteOfDay = minuteOfDay;
+    scheduledEvent.event = event;
+    scheduledEvent.id = id;
 }
