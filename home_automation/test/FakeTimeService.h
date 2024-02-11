@@ -10,6 +10,8 @@ enum
 
 void FakeTimeService_Create(void);
 void FakeTimeService_Destroy(void);
+WakeUpCallback FakeTimeService_GetAlarmCallback();
+int FakeTimeService_GetAlarmPeriod();
 void FakeTimeService_SetMinute(int);
 void FakeTimeService_SetDay(int);
 

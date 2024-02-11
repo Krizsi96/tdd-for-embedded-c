@@ -80,6 +80,63 @@ TEST(LightScheduler, ScheduleTuesdayButItsMonday)
     checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
 }
 
+TEST(LightScheduler, ScheduleTuesdayAndItsTuesday)
+{
+    LightScheduler_ScheduleTurnOn(3, TUESDAY, 1200);
+    setTimeTo(TUESDAY, 1200);
+    LightScheduler_WakeUp();
+    checkLightState(3, LIGHT_ON);
+}
+
+TEST(LightScheduler, ScheduleWeekEndItsFriday)
+{
+    LightScheduler_ScheduleTurnOn(3, WEEKEND, 1200);
+    setTimeTo(FRIDAY, 1200);
+    LightScheduler_WakeUp();
+    checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
+}
+
+TEST(LightScheduler, ScheduleWeekEndItsSaturday)
+{
+    LightScheduler_ScheduleTurnOn(3, WEEKEND, 1200);
+    setTimeTo(SATURDAY, 1200);
+    LightScheduler_WakeUp();
+    checkLightState(3, LIGHT_ON);
+}
+
+TEST(LightScheduler, ScheduleWeekEndItsSunday)
+{
+    LightScheduler_ScheduleTurnOn(3, WEEKEND, 1200);
+    setTimeTo(SUNDAY, 1200);
+    LightScheduler_WakeUp();
+    checkLightState(3, LIGHT_ON);
+}
+
+TEST(LightScheduler, ScheduleWeekEndItsMonday)
+{
+    LightScheduler_ScheduleTurnOn(3, WEEKEND, 1200);
+    setTimeTo(MONDAY, 1200);
+    LightScheduler_WakeUp();
+    checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
+}
+
+TEST_GROUP(LightSchedulerInitAndCleanup){};
+
+TEST(LightSchedulerInitAndCleanup, createStartsOneMinuteAlarm)
+{
+    LightScheduler_Create();
+    POINTERS_EQUAL((void *)LightScheduler_WakeUp, (void *)FakeTimeService_GetAlarmCallback());
+    LONGS_EQUAL(60, FakeTimeService_GetAlarmPeriod());
+    LightScheduler_Destroy();
+}
+
+TEST(LightSchedulerInitAndCleanup, DestroyCancelsOneMinuteAlarm)
+{
+    LightScheduler_Create();
+    LightScheduler_Destroy();
+    POINTERS_EQUAL(NULL, (void *)FakeTimeService_GetAlarmCallback());
+}
+
 // Lights are not change at initialization
 // Time is wrong, day is wrong, no light are changed
 // Day is right, time is wrong, no light are changed
