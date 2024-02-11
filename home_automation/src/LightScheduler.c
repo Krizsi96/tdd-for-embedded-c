@@ -3,6 +3,9 @@
 #include "LightController.h"
 #include <stdbool.h>
 
+#define MIN_LIGHT_ID 0
+#define MAX_LIGHT_ID 31
+
 typedef struct
 {
     int id;
@@ -22,16 +25,18 @@ enum
     TURN_OFF
 };
 
-static ScheduledLightEvent scheduledEvent;
-static void scheduleEvent(int id, Day day, int minuteOfDay, int event);
+static ScheduledLightEvent scheduledEvents[MAX_EVENTS];
+
+static int scheduleEvent(int id, Day day, int minuteOfDay, int event);
 static void processEventDueNow(Time *time, ScheduledLightEvent *lightEvent);
 static void operateLight(ScheduledLightEvent *lightEvent);
 static int doesLightRespondToday(Time *time, int reactionDay);
+static int isValidId(int id);
 
 void LightScheduler_Create(void)
 {
-    scheduledEvent.id = UNUSED;
-
+    for (int i = 0; i < MAX_EVENTS; i++)
+        scheduledEvents[i].id = UNUSED;
     TimeService_SetPeriodicAlarmInSeconds(60, LightScheduler_WakeUp);
 }
 
@@ -45,7 +50,8 @@ void LightScheduler_WakeUp(void)
     Time time;
     TimeService_GetTime(&time);
 
-    processEventDueNow(&time, &scheduledEvent);
+    for (int i = 0; i < MAX_EVENTS; i++)
+        processEventDueNow(&time, &scheduledEvents[i]);
 }
 
 static void processEventDueNow(Time *time, ScheduledLightEvent *lightEvent)
@@ -87,20 +93,50 @@ static void operateLight(ScheduledLightEvent *lightEvent)
         LightController_Off(lightEvent->id);
 }
 
-void LightScheduler_ScheduleTurnOn(int id, Day day, int minuteOfDay)
+int LightScheduler_ScheduleTurnOn(int id, Day day, int minuteOfDay)
 {
-    scheduleEvent(id, day, minuteOfDay, TURN_ON);
+    return scheduleEvent(id, day, minuteOfDay, TURN_ON);
 }
 
-void LightScheduler_ScheduleTurnOff(int id, Day day, int minuteOfDay)
+int LightScheduler_ScheduleTurnOff(int id, Day day, int minuteOfDay)
 {
-    scheduleEvent(id, day, minuteOfDay, TURN_OFF);
+    return scheduleEvent(id, day, minuteOfDay, TURN_OFF);
 }
 
-static void scheduleEvent(int id, Day day, int minuteOfDay, int event)
+static int scheduleEvent(int id, Day day, int minuteOfDay, int event)
 {
-    scheduledEvent.day = day;
-    scheduledEvent.minuteOfDay = minuteOfDay;
-    scheduledEvent.event = event;
-    scheduledEvent.id = id;
+    if (!isValidId(id))
+        return LS_ID_OUT_OF_BOUNDS;
+    for (int i = 0; i < MAX_EVENTS; i++)
+    {
+        if (scheduledEvents[i].id == UNUSED)
+        {
+            scheduledEvents[i].day = day;
+            scheduledEvents[i].minuteOfDay = minuteOfDay;
+            scheduledEvents[i].event = event;
+            scheduledEvents[i].id = id;
+            return LS_OK;
+        }
+    }
+    return LS_TOO_MANY_EVENTS;
+}
+
+static int isValidId(int id)
+{
+    if (MIN_LIGHT_ID <= id && id <= MAX_LIGHT_ID)
+        return true;
+    return false;
+}
+
+void LightScheduler_ScheduleRemove(int id, Day day, int minuteOfDay)
+{
+    for (int i = 0; i < MAX_EVENTS; i++)
+    {
+        int event_id = scheduledEvents[i].id;
+        Day event_day = scheduledEvents[i].day;
+        int event_minuteOfDay = scheduledEvents[i].minuteOfDay;
+
+        if (event_id == id && event_day == day && event_minuteOfDay == minuteOfDay)
+            scheduledEvents[i].id = UNUSED;
+    }
 }
