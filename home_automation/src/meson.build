@@ -1,1 +1,1 @@
-source_files = files('LightScheduler.c')
+source_files = files('LightScheduler.c', 'RandomMinute.c')

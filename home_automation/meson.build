@@ -9,6 +9,7 @@ cpputest = dependency('cpputest')
 subdir('src')
 subdir('test')
 
+
 fake_time_service_test = executable('fake_time_service_test', 
                                     include_directories: include_dir, 
                                     sources: [source_files, test_doubles, test_runner, fake_time_service_tests], 
@@ -26,3 +27,9 @@ light_scheduler_test = executable('light_scheduler_test',
                                     sources: [source_files, test_doubles, test_runner, light_scheduler_tests], 
                                     dependencies: cpputest)
 test('light_scheduler_test', light_scheduler_test)
+
+random_minute_test = executable('random_minute_test',
+                                    include_directories: include_dir,
+                                    sources: [source_files, test_doubles, test_runner, random_minute_tests],
+                                    dependencies: cpputest)
+test('random_minute_test', random_minute_test)
