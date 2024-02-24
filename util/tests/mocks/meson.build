@@ -1,5 +1,4 @@
 format_output_spy_source = files('FormatOutputSpy.c')
-test_runner = files('TestRunner.cpp')
 
 format_output_spy_test = executable('format_output_spy_test',
                                     include_directories: include_dir,

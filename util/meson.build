@@ -7,4 +7,4 @@ include_dir = include_directories('include')
 cpputest = dependency('cpputest')
 
 subdir('src')
-subdir('mocks')
+subdir('tests')
